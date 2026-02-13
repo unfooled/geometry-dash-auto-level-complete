@@ -25,7 +25,15 @@ def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     location = safe_locate(image_name, conf, region)
     if location:
         center = pyautogui.center(location)
-        pyautogui.click(center)
+        
+        # DOUBLE CLICK for main button
+        if 'play_main' in image_name:
+            pyautogui.click(center.x, center.y)
+            time.sleep(0.3)
+            pyautogui.click(center.x, center.y)  # Second click
+        else:
+            pyautogui.click(center.x, center.y)  # Single click for others
+            
         print(f"[ACTION] Clicked {name}")
         return True
     return False
