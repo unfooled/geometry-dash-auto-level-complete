@@ -4,7 +4,6 @@ import os
 
 # --- PATH FIX ---
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-
 def get_path(filename):
     return os.path.join(BASE_PATH, filename)
 
@@ -25,7 +24,18 @@ def safe_locate(image_name, conf=0.7, region=None):
 def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     location = safe_locate(image_name, conf, region)
     if location:
-        pyautogui.click(pyautogui.center(location))
+        center = pyautogui.center(location)
+        
+        # SPECIAL HANDLING FOR MAIN PLAY BUTTON
+        if 'play_main' in image_name:
+            time.sleep(0.5)  # Extra wait for button to be ready
+            pyautogui.moveTo(center.x, center.y, duration=0.3)  # Move mouse first
+            time.sleep(0.2)
+            pyautogui.click(center.x, center.y)  # Click with explicit coords
+            time.sleep(0.3)
+        else:
+            pyautogui.click(center)
+            
         print(f"[ACTION] Clicked {name}")
         return True
     return False
@@ -92,7 +102,7 @@ try:
                 else:
                     search_attempts = 0 
                     pyautogui.scroll(-10)
-
+                    
 except pyautogui.FailSafeException:
     print("\n[STOPPED] Emergency stop.")
 except KeyboardInterrupt:
