@@ -10,7 +10,7 @@ def get_path(filename):
 
 # --- CONFIG ---
 pyautogui.FAILSAFE = True 
-CONF_LEVEL = 0.8  # Using the 0.8 you had in your script
+CONF_LEVEL = 0.8  
 # --------------
 
 def safe_locate(image_name, conf=0.7, region=None):
@@ -24,21 +24,24 @@ def safe_locate(image_name, conf=0.7, region=None):
 def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     location = safe_locate(image_name, conf, region)
     if location:
-        # THE FIX: Added duration=0.1 so GD cannot ignore the click
-        pyautogui.click(pyautogui.center(location), duration=0.1)
+        # THE FIX: Explicit Move + Simple Click
+        # This is what fixed the ghost clicks in the past!
+        center_pt = pyautogui.center(location)
+        pyautogui.moveTo(center_pt)
+        time.sleep(0.05) # Tiny pause for GD to recognize the hover
+        pyautogui.click(center_pt)
         print(f"[ACTION] Clicked {name}")
         return True
     return False
 
 print("==========================================")
-print("   GD FARMER: ROBUST CLICK & HEAL        ")
+print("   GD FARMER: ULTIMATE GHOST-PROOF       ")
 print("==========================================")
 print("Starting in 5 seconds...")
 time.sleep(5)
 
 farmed_count = 0
 search_attempts = 0 
-screen_width, screen_height = pyautogui.size()
 
 try:
     while True:
@@ -47,14 +50,19 @@ try:
             farmed_count += 1
             search_attempts = 0 
             
-            # STEP 2: WAIT FOR GREEN BUTTON (Exact loop from your old script)
-            print("[WAITING] Level selected. Waiting for Main Play button...")
+            # STEP 2: THE MAIN PLAY HUNTER (Now using your 'Perfect' Popup logic)
+            print("[WAITING] Level selected. Hunting for Main Play button...")
             while True:
+                time.sleep(1.0) 
+                # If it's still there, click it. If it's gone, move to popups.
                 if find_and_click('play_main.png', 'MAIN ROUND PLAY'):
+                    time.sleep(1.0)
+                    continue 
+                else:
                     break 
-                time.sleep(1) 
             
-            # STEP 3: THE POPUP HUNTER (Exact loop from your old script)
+            # STEP 3: THE POPUP HUNTER (Kept exactly as you liked it)
+            print("[WAITING] Handling popups...")
             while True:
                 time.sleep(1.2)
                 if find_and_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
@@ -62,16 +70,15 @@ try:
                 else:
                     break 
                     
-            # STEP 4: FARMING (Wait for the finish icon you sent)
+            # STEP 4: FARMING (WAITING FOR THE FINISH ICON)
             print(f"Farming Level #{farmed_count}...")
             while True:
-                # 'level_finished.png' is the icon with the dots/bars
                 if safe_locate('level_finished.png', conf=0.7):
                     print("[WIN] Level finished icon detected!")
                     break
                 time.sleep(0.5)
             
-            # STEP 5: EXIT AND HEALING (ESC ESC -> Then Verify)
+            # STEP 5: EXIT AND START HEALING (ESC ESC -> Then Verify)
             print("[EXITING] Doing ESC ESC then starting healing...")
             pyautogui.press('esc')   
             time.sleep(1.2)          
@@ -79,18 +86,18 @@ try:
             
             # THE HEALING PROCESS
             while True:
-                # CHECK A: If Purple Arrow found -> Success, break and start scrolling
+                # CHECK A: Found Purple Arrow -> Go to next search/scroll
                 if safe_locate('pink_arrow.png', conf=0.7):
-                    print("[SUCCESS] Back at list. Moving to scrolling phase.")
+                    print("[SUCCESS] Back at list. Moving to search/scroll phase.")
                     break
                 
-                # CHECK B: If Search Icon found -> Click it, then break to start scrolling
+                # CHECK B: Found Search Icon -> Click it and then start scroll
                 elif find_and_click('search_icon.png', 'SEARCH ICON'):
-                    print("[FIX] On search page. Returning to list and starting scroll...")
+                    print("[FIX] On search page. Returning to list...")
                     time.sleep(1.5) 
                     break
                 
-                # CHECK C: Still Lost -> Press ESC and try checks again
+                # CHECK C: Still Lost -> Press ESC and try again
                 else:
                     print("[RETRY] Still lost. Pressing ESC...")
                     pyautogui.press('esc')
@@ -99,11 +106,10 @@ try:
             time.sleep(1.0)
         
         else:
-            # STEP 6: SCROLLING (8 attempts for full page coverage)
+            # STEP 6: SCROLLING (8 attempts for full coverage)
             search_attempts += 1
             print(f"[SEARCHING] Attempt {search_attempts}/8 - Flicking Scroll...")
             
-            # The "Flick" loop to make Windows scroll actually move
             for _ in range(15): 
                 pyautogui.scroll(-140) 
                 time.sleep(0.005) 
@@ -118,7 +124,6 @@ try:
                     search_attempts = 0 
                 else:
                     search_attempts = 0 
-                    # Smaller flick if we are stuck at the bottom
                     for _ in range(5):
                         pyautogui.scroll(-100)
                         time.sleep(0.005)
