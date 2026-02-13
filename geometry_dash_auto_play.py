@@ -15,6 +15,7 @@ LEVEL_TIME = 6
 # --------------
 
 def safe_locate(image_name, conf=0.7, region=None):
+    """Prevents crashing when image isn't found."""
     try:
         img_path = get_path(image_name)
         return pyautogui.locateOnScreen(img_path, confidence=conf, region=region)
@@ -24,18 +25,14 @@ def safe_locate(image_name, conf=0.7, region=None):
 def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     location = safe_locate(image_name, conf, region)
     if location:
-        point = pyautogui.center(location)
-        # WINDOWS FIX: Move mouse first and use a slightly slower double click
-        pyautogui.moveTo(point.x, point.y, duration=0.1)
-        pyautogui.click(clicks=2, interval=0.1) 
+        pyautogui.click(pyautogui.center(location))
         print(f"[ACTION] Clicked {name}")
         return True
     return False
 
 print("==========================================")
-print("   GD FARMER: WINDOWS ROBUST EDITION      ")
+print("   GD FARMER: WINDOWS SCROLL FIX          ")
 print("==========================================")
-print("TIP: Set Windows Display Scaling to 100%!")
 print("Starting in 5 seconds...")
 time.sleep(5)
 
@@ -51,28 +48,20 @@ try:
             farmed_count += 1
             search_attempts = 0 
             
-            # --- PHASE 2: WAIT FOR MAIN PLAY ---
+            # STEP 2: UNLIMITED WAIT FOR GREEN BUTTON
             print("[WAITING] Level selected. Waiting for Main Play button...")
             while True:
-                # We check for popups even here, just in case they appear BEFORE the play button
-                if find_and_click('play_popup.png', 'EARLY POPUP'):
-                    time.sleep(1)
-                
                 if find_and_click('play_main.png', 'MAIN ROUND PLAY'):
                     break 
-                time.sleep(1)
+                time.sleep(1) 
             
-            # --- PHASE 3: THE POPUP HUNTER ---
-            # We add a 2-second "grace period" to look for popups specifically
-            print("[SEARCHING] Looking for popups...")
-            popup_timer = 0
-            while popup_timer < 5: # Check for 5 seconds total
+            # STEP 3: THE POPUP HUNTER (Kept exactly as you liked it)
+            while True:
+                time.sleep(1.2)
                 if find_and_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
-                    popup_timer = 0 # Reset timer if we found one, might be another
-                    time.sleep(1.2)
-                    continue
-                time.sleep(1)
-                popup_timer += 1
+                    continue 
+                else:
+                    break 
                     
             # STEP 4: Farming
             print(f"Farming Level #{farmed_count}...")
@@ -86,11 +75,17 @@ try:
             time.sleep(1.5)
         
         else:
-            # STEP 6: STRONGER SCROLLING LOGIC
+            # STEP 6: WINDOWS "FLICK" SCROLLING
             search_attempts += 1
-            print(f"[SEARCHING] Attempt {search_attempts}/5 - Scrolling Hard...")
-            pyautogui.scroll(-76) 
-            time.sleep(1.5) 
+            print(f"[SEARCHING] Attempt {search_attempts}/5 - Flicking Scroll...")
+            
+            # On Windows, doing one big scroll doesn't work.
+            # We loop 10 times to simulate a hard mouse wheel spin.
+            for _ in range(10): 
+                pyautogui.scroll(-200) # Each "click" of the wheel
+                time.sleep(0.01)      # Tiny delay so the game registers it
+            
+            time.sleep(1.0) # Let the scrolling momentum stop before searching
             
             if search_attempts >= 5:
                 print(">>> End of Page. Hunting for RIGHT Pink Arrow...")
@@ -100,7 +95,10 @@ try:
                     search_attempts = 0 
                 else:
                     search_attempts = 0 
-                    pyautogui.scroll(-10)
+                    # Smaller flick if we hit the end
+                    for _ in range(5):
+                        pyautogui.scroll(-100)
+                        time.sleep(0.01)
 
 except pyautogui.FailSafeException:
     print("\n[STOPPED] Emergency stop.")
