@@ -63,12 +63,13 @@ try:
                 time.sleep(1) # Check every second so it doesn't lag your PC
             
             # STEP 3: THE POPUP HUNTER
+            time.sleep(2)  # Wait for popup to appear on Windows
             while True:
                 time.sleep(1.2)
                 if find_and_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
-                    continue 
+                    continue  # Found popup, clicked it, check again
                 else:
-                    break 
+                    break  # No popup found, go to farming 
                     
             # STEP 4: Farming
             print(f"Farming Level #{farmed_count}...")
