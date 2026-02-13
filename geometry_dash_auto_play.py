@@ -4,6 +4,7 @@ import os
 
 # --- PATH FIX ---
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
 def get_path(filename):
     return os.path.join(BASE_PATH, filename)
 
@@ -25,15 +26,13 @@ def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     location = safe_locate(image_name, conf, region)
     if location:
         center = pyautogui.center(location)
+        pyautogui.click(center)
         
-        # DOUBLE CLICK for main button
+        # ONLY FIX: Double click for main button
         if 'play_main' in image_name:
-            pyautogui.click(center.x, center.y)
             time.sleep(0.3)
-            pyautogui.click(center.x, center.y)  # Second click
-        else:
-            pyautogui.click(center.x, center.y)  # Single click for others
-            
+            pyautogui.click(center)
+        
         print(f"[ACTION] Clicked {name}")
         return True
     return False
@@ -63,29 +62,16 @@ try:
                     break # Exit this loop and move to popups only when button is clicked
                 time.sleep(1) # Check every second so it doesn't lag your PC
             
-            print("="*50)
-            print("MAIN BUTTON CLICKED - NOW CHECKING POPUPS")
-            print("="*50)
-            time.sleep(2)  # Give popup time to appear on Windows
-            
             # STEP 3: THE POPUP HUNTER
-            print(">>> POPUP HUNTER STARTED <<<")
-            checks = 0
-            while checks < 3:
-                print(f">>> POPUP CHECK {checks+1} of 3 <<<")
+            while True:
                 time.sleep(1.2)
                 if find_and_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
-                    checks = 0
-                    print(">>> FOUND POPUP! CHECKING AGAIN <<<")
                     continue 
                 else:
-                    checks += 1
-            print(">>> POPUP HUNTER FINISHED <<<") 
+                    break 
                     
             # STEP 4: Farming
-            print("="*50)
-            print(f"STARTING FARM - Level #{farmed_count}")
-            print("="*50)
+            print(f"Farming Level #{farmed_count}...")
             time.sleep(LEVEL_TIME)
             
             # STEP 5: ESC-SEQUENCE
@@ -113,7 +99,7 @@ try:
                 else:
                     search_attempts = 0 
                     pyautogui.scroll(-10)
-                    
+
 except pyautogui.FailSafeException:
     print("\n[STOPPED] Emergency stop.")
 except KeyboardInterrupt:
