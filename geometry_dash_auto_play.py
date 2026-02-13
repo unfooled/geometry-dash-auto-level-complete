@@ -14,35 +14,34 @@ CONF_LEVEL = 0.8
 # --------------
 
 def safe_locate(image_name, conf=0.7, region=None):
-    """Prevents crashing when image isn't found."""
     try:
         img_path = get_path(image_name)
         return pyautogui.locateOnScreen(img_path, confidence=conf, region=region)
     except:
         return None
 
-# NEW: Heavy-duty click for the Main Button only
+# HEAVY: For Main Button only
 def main_button_click(image_name, name):
     location = safe_locate(image_name, CONF_LEVEL)
     if location:
         center_pt = pyautogui.center(location)
-        pyautogui.moveTo(center_pt, duration=0.1) # The move that fixed ghost clicks
+        pyautogui.moveTo(center_pt, duration=0.1) 
         pyautogui.click(center_pt)
-        print(f"[ACTION] Clicked {name}")
+        print(f"[ACTION] Heavy-Clicked {name}")
         return True
     return False
 
-# OLD: The fast click from your original script
-def fast_click(image_name, name):
-    location = safe_locate(image_name, CONF_LEVEL)
+# FAST: For everything else (Original Logic)
+def fast_click(image_name, name, region=None):
+    location = safe_locate(image_name, CONF_LEVEL, region=region)
     if location:
-        pyautogui.click(pyautogui.center(location)) # Straight click, no movement
+        pyautogui.click(pyautogui.center(location))
         print(f"[ACTION] Fast-Clicked {name}")
         return True
     return False
 
 print("==========================================")
-print("   GD FARMER: HYBRID LOGIC ACTIVE        ")
+print("      GD FARMER: LOCKED & LOADED         ")
 print("==========================================")
 print("Starting in 5 seconds...")
 time.sleep(5)
@@ -59,8 +58,7 @@ try:
             farmed_count += 1
             search_attempts = 0 
             
-            # STEP 2: MAIN BUTTON (The "Fixed" Hunter Logic)
-            print("[WAITING] Hunting Main Play button (Ghost-Proof)...")
+            # STEP 2: MAIN BUTTON (Hunter Loop)
             while True:
                 if main_button_click('play_main.png', 'MAIN ROUND PLAY'):
                     time.sleep(0.5) 
@@ -68,23 +66,20 @@ try:
                 else:
                     break 
             
-            # STEP 3: POPUP PLAY (Reverted to your Old Script Logic)
-            print("[WAITING] Popups (Old Script Speed)...")
+            # STEP 3: POPUP SNAPPERS (Old Script Speed)
             while True:
-                # No 1.2s delay, no moveTo. Just the old loop.
                 if fast_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
                     continue 
                 else:
                     break 
                     
-            # STEP 4: FARMING (WAITING FOR ICON)
-            print(f"Farming Level #{farmed_count}...")
+            # STEP 4: FARMING (Icon Detection)
             while True:
                 if safe_locate('level_finished.png', conf=0.7):
                     break
                 time.sleep(0.5)
             
-            # STEP 5: EXIT + HEALING
+            # STEP 5: ESCAPE AND HEALING
             pyautogui.press('esc')   
             time.sleep(1.2)          
             pyautogui.press('esc')   
@@ -102,20 +97,25 @@ try:
             time.sleep(1.0)
         
         else:
-            # STEP 6: SCROLLING (Your exact -76 foundation)
+            # STEP 6: 8-ATTEMPT FLICK SCROLL (Original Foundation)
             search_attempts += 1
-            pyautogui.scroll(-76) 
-            time.sleep(1.5) 
+            for _ in range(15): 
+                pyautogui.scroll(-140) 
+                time.sleep(0.005) 
             
-            if search_attempts >= 5:
-                if fast_click('pink_arrow.png', 'RIGHT PINK ARROW'):
+            time.sleep(0.6) 
+            
+            if search_attempts >= 8:
+                if fast_click('pink_arrow.png', 'RIGHT PINK ARROW', region=right_half):
                     time.sleep(5) 
                     search_attempts = 0 
                 else:
                     search_attempts = 0 
-                    pyautogui.scroll(-10)
+                    for _ in range(5):
+                        pyautogui.scroll(-100)
+                        time.sleep(0.005)
 
 except pyautogui.FailSafeException:
-    print("\n[STOPPED] Emergency stop.")
+    print("\n[STOPPED]")
 except KeyboardInterrupt:
-    print("\n[STOPPED] Manual stop.")
+    print("\n[STOPPED]")
