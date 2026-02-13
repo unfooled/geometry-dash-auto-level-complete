@@ -14,26 +14,24 @@ CONF_LEVEL = 0.8
 # --------------
 
 def safe_locate(image_name, conf=0.7, region=None):
-    """Prevents crashing when image isn't found."""
     try:
         img_path = get_path(image_name)
         return pyautogui.locateOnScreen(img_path, confidence=conf, region=region)
     except:
         return None
 
-# HEAVY-DUTY: Used ONLY for the Main Green Button to kill ghost clicks
+# HEAVY: For Main Button only to stop ghosting (Move + Click)
 def main_button_click(image_name, name):
     location = safe_locate(image_name, CONF_LEVEL)
     if location:
         center_pt = pyautogui.center(location)
-        # The 'moveTo' wake-up call for GD that stops ghost clicks
         pyautogui.moveTo(center_pt, duration=0.1) 
         pyautogui.click(center_pt)
-        print(f"[ACTION] Heavy-Clicked {name}")
+        print(f"[ACTION] Clicked {name}")
         return True
     return False
 
-# FAST-SNAP: Used for everything else (Exactly like your old code)
+# FAST: For Popups (Original snap logic)
 def fast_click(image_name, name, region=None):
     location = safe_locate(image_name, CONF_LEVEL, region=region)
     if location:
@@ -43,9 +41,8 @@ def fast_click(image_name, name, region=None):
     return False
 
 print("==========================================")
-print("   GD FARMER: THE FINAL STRIKE           ")
+print("     LOCKED FOUNDATION - NO SKIPPING     ")
 print("==========================================")
-print("Starting in 5 seconds...")
 time.sleep(5)
 
 farmed_count = 0
@@ -60,59 +57,51 @@ try:
             farmed_count += 1
             search_attempts = 0 
             
-            # STEP 2: THE MAIN BUTTON (Heavy-Duty + Loop)
-            print("[WAITING] Level selected. Hunting Main Play button...")
+            # STEP 2: RESTORED UNLIMITED WAIT (From your original script)
+            print("[WAITING] Level selected. Waiting for Main Play button...")
             while True:
+                # This loop will NOT break until the button is clicked
                 if main_button_click('play_main.png', 'MAIN ROUND PLAY'):
-                    time.sleep(0.5) 
-                    continue 
-                else:
                     break 
+                time.sleep(0.5) 
             
-            # STEP 3: THE POPUP SNAPPERS (Fast as hell)
-            print("[WAITING] Snapping popups...")
+            # STEP 3: THE POPUP HUNTER (Old script speed)
+            print("[WAITING] Handling popups...")
             while True:
                 if fast_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
-                    # No moveTo, no delay. Just snap it.
+                    time.sleep(0.2)
                     continue 
                 else:
                     break 
                     
-            # STEP 4: FARMING (WAITING FOR THE FINISH ICON)
+            # STEP 4: FARMING (Icon Detection)
             print(f"Farming Level #{farmed_count}...")
             while True:
                 if safe_locate('level_finished.png', conf=0.7):
-                    print("[WIN] Finish icon found!")
                     break
                 time.sleep(0.5)
             
             # STEP 5: ESCAPE AND HEALING
-            print("[EXITING] Doing ESC ESC then starting healing...")
             pyautogui.press('esc')   
             time.sleep(1.2)          
             pyautogui.press('esc')   
             
-            # Verify we are back on the list before scrolling
             while True:
                 if safe_locate('pink_arrow.png', conf=0.7):
-                    print("[SUCCESS] Found Purple Arrow. Proceeding...")
                     break
                 elif fast_click('search_icon.png', 'SEARCH ICON'):
-                    print("[FIX] On search page. Returning to list...")
                     time.sleep(1.0) 
                     break
                 else:
-                    print("[RETRY] Still lost. Pressing ESC...")
                     pyautogui.press('esc')
                     time.sleep(1.2)
             
             time.sleep(1.0)
         
         else:
-            # STEP 6: THE 8-ATTEMPT FLICK SCROLL (Your exact logic)
+            # STEP 6: 8-ATTEMPT FLICK SCROLL
             search_attempts += 1
-            print(f"[SEARCHING] Attempt {search_attempts}/8 - Flicking...")
-            
+            print(f"[SEARCHING] Attempt {search_attempts}/8...")
             for _ in range(15): 
                 pyautogui.scroll(-140) 
                 time.sleep(0.005) 
@@ -120,19 +109,16 @@ try:
             time.sleep(0.6) 
             
             if search_attempts >= 8:
-                print(">>> Page End. Hunting Right Pink Arrow...")
                 if fast_click('pink_arrow.png', 'RIGHT PINK ARROW', region=right_half):
-                    print("--- LOADING NEXT PAGE ---")
                     time.sleep(5) 
                     search_attempts = 0 
                 else:
                     search_attempts = 0 
-                    # Bottom-of-page nudge
                     for _ in range(5):
                         pyautogui.scroll(-100)
                         time.sleep(0.005)
 
 except pyautogui.FailSafeException:
-    print("\n[STOPPED] Emergency stop.")
+    print("\n[STOPPED]")
 except KeyboardInterrupt:
-    print("\n[STOPPED] Manual stop.")
+    print("\n[STOPPED]")
