@@ -11,7 +11,6 @@ def get_path(filename):
 # --- CONFIG ---
 pyautogui.FAILSAFE = True 
 CONF_LEVEL = 0.8  
-LEVEL_TIME = 6    
 # --------------
 
 def safe_locate(image_name, conf=0.7, region=None):
@@ -31,7 +30,7 @@ def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     return False
 
 print("==========================================")
-print("   GD FARMER: FULL PAGE COVERAGE         ")
+print("   GD FARMER: DIRECT HEALING EDITION     ")
 print("==========================================")
 print("Starting in 5 seconds...")
 time.sleep(5)
@@ -48,14 +47,14 @@ try:
             farmed_count += 1
             search_attempts = 0 
             
-            # STEP 2: UNLIMITED WAIT FOR GREEN BUTTON
+            # STEP 2: Wait for Main Play button
             print("[WAITING] Level selected. Waiting for Main Play button...")
             while True:
                 if find_and_click('play_main.png', 'MAIN ROUND PLAY'):
                     break 
                 time.sleep(1) 
             
-            # STEP 3: THE POPUP HUNTER (KEPT ORIGINAL)
+            # STEP 3: THE POPUP HUNTER
             while True:
                 time.sleep(1.2)
                 if find_and_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
@@ -63,44 +62,66 @@ try:
                 else:
                     break 
                     
-            # STEP 4: Farming
+            # STEP 4: FARMING (WAITING FOR THE FINISH ICON)
             print(f"Farming Level #{farmed_count}...")
-            time.sleep(LEVEL_TIME)
+            while True:
+                # 'level_finished.png' is the list icon you sent
+                if safe_locate('level_finished.png', conf=0.7):
+                    print("[WIN] Level finished detected!")
+                    break
+                time.sleep(0.5)
             
-            # STEP 5: ESC-SEQUENCE
+            # STEP 5: EXIT AND START HEALING
+            print("[EXITING] Level done. Doing ESC ESC then healing...")
             pyautogui.press('esc')   
             time.sleep(1.2)          
             pyautogui.press('esc')   
-            print("Back at list.")
+            
+            # THE HEALING PROCESS
+            while True:
+                # CHECK A: Success - Found Purple Arrow -> Go to next search/scroll
+                if safe_locate('pink_arrow.png', conf=0.7, region=right_half):
+                    print("[SUCCESS] Found Purple Arrow. Proceeding...")
+                    break
+                
+                # CHECK B: Stuck - Found Search Icon -> Click and go to next search/scroll
+                elif find_and_click('search_icon.png', 'SEARCH ICON'):
+                    print("[FIX] On search page. Clicking to return and starting scroll...")
+                    time.sleep(1.5) # Small wait for list to load
+                    break
+                
+                # CHECK C: Still Lost - Press ESC and try again
+                else:
+                    print("[RETRY] Still lost. Pressing ESC...")
+                    pyautogui.press('esc')
+                    time.sleep(1.2)
+            
             time.sleep(1.5)
         
         else:
-            # STEP 6: SCROLLING LOGIC
+            # STEP 6: SCROLLING (8 ATTEMPTS FOR FULL COVERAGE)
             search_attempts += 1
             print(f"[SEARCHING] Attempt {search_attempts}/8 - Flicking Scroll...")
             
-            # Windows "Flick" logic
             for _ in range(15): 
                 pyautogui.scroll(-140) 
                 time.sleep(0.005) 
             
             time.sleep(0.6) 
             
-            # UPDATED: Now waits for 8 attempts before switching pages
             if search_attempts >= 8:
-                print(">>> End of Page Reached. Hunting for RIGHT Pink Arrow...")
+                print(">>> End of Page. Hunting for RIGHT Pink Arrow...")
                 if find_and_click('pink_arrow.png', 'RIGHT PINK ARROW', region=right_half):
                     print("--- LOADING NEXT PAGE ---")
                     time.sleep(5) 
                     search_attempts = 0 
                 else:
-                    # If arrow not found, reset and try a tiny bit more
                     search_attempts = 0 
                     for _ in range(5):
                         pyautogui.scroll(-100)
                         time.sleep(0.005)
 
 except pyautogui.FailSafeException:
-    print("\n[STOPPED] Emergency stop.")
+    print("\n[STOPPED] Emergency stop triggered.")
 except KeyboardInterrupt:
     print("\n[STOPPED] Manual stop.")
