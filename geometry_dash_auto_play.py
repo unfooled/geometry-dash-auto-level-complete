@@ -25,15 +25,7 @@ def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     location = safe_locate(image_name, conf, region)
     if location:
         center = pyautogui.center(location)
-        
-        # SPECIAL HANDLING FOR MAIN PLAY BUTTON - CLICK TWICE
-        if 'play_main' in image_name:
-            pyautogui.click(center)
-            time.sleep(0.3)
-            pyautogui.click(center)  # Second click
-        else:
-            pyautogui.click(center)
-            
+        pyautogui.click(center)
         print(f"[ACTION] Clicked {name}")
         return True
     return False
@@ -63,17 +55,29 @@ try:
                     break # Exit this loop and move to popups only when button is clicked
                 time.sleep(1) # Check every second so it doesn't lag your PC
             
+            print("="*50)
+            print("MAIN BUTTON CLICKED - NOW CHECKING POPUPS")
+            print("="*50)
+            time.sleep(2)  # Give popup time to appear on Windows
+            
             # STEP 3: THE POPUP HUNTER
-            time.sleep(1.5)  # Wait for popup to appear (especially on Windows)
-            while True:
+            print(">>> POPUP HUNTER STARTED <<<")
+            checks = 0
+            while checks < 3:
+                print(f">>> POPUP CHECK {checks+1} of 3 <<<")
                 time.sleep(1.2)
                 if find_and_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
+                    checks = 0
+                    print(">>> FOUND POPUP! CHECKING AGAIN <<<")
                     continue 
                 else:
-                    break 
+                    checks += 1
+            print(">>> POPUP HUNTER FINISHED <<<") 
                     
             # STEP 4: Farming
-            print(f"Farming Level #{farmed_count}...")
+            print("="*50)
+            print(f"STARTING FARM - Level #{farmed_count}")
+            print("="*50)
             time.sleep(LEVEL_TIME)
             
             # STEP 5: ESC-SEQUENCE
