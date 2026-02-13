@@ -26,13 +26,11 @@ def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     if location:
         center = pyautogui.center(location)
         
-        # SPECIAL HANDLING FOR MAIN PLAY BUTTON
+        # SPECIAL HANDLING FOR MAIN PLAY BUTTON - CLICK TWICE
         if 'play_main' in image_name:
-            time.sleep(0.5)  # Extra wait for button to be ready
-            pyautogui.moveTo(center.x, center.y, duration=0.3)  # Move mouse first
-            time.sleep(0.2)
-            pyautogui.click(center.x, center.y)  # Click with explicit coords
+            pyautogui.click(center)
             time.sleep(0.3)
+            pyautogui.click(center)  # Second click
         else:
             pyautogui.click(center)
             
@@ -66,6 +64,7 @@ try:
                 time.sleep(1) # Check every second so it doesn't lag your PC
             
             # STEP 3: THE POPUP HUNTER
+            time.sleep(1.5)  # Wait for popup to appear (especially on Windows)
             while True:
                 time.sleep(1.2)
                 if find_and_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
