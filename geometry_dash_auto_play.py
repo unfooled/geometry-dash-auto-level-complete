@@ -15,7 +15,6 @@ LEVEL_TIME = 6
 # --------------
 
 def safe_locate(image_name, conf=0.7, region=None):
-    """Prevents crashing when image isn't found."""
     try:
         img_path = get_path(image_name)
         return pyautogui.locateOnScreen(img_path, confidence=conf, region=region)
@@ -25,21 +24,18 @@ def safe_locate(image_name, conf=0.7, region=None):
 def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     location = safe_locate(image_name, conf, region)
     if location:
-        center = pyautogui.center(location)
-        pyautogui.click(center)
-        
-        # ONLY FIX: Double click for main button
-        if 'play_main' in image_name:
-            time.sleep(0.3)
-            pyautogui.click(center)
-        
+        point = pyautogui.center(location)
+        # WINDOWS FIX: Move mouse first and use a slightly slower double click
+        pyautogui.moveTo(point.x, point.y, duration=0.1)
+        pyautogui.click(clicks=2, interval=0.1) 
         print(f"[ACTION] Clicked {name}")
         return True
     return False
 
 print("==========================================")
-print("   GD FARMER: PATIENT HUNTER EDITION      ")
+print("   GD FARMER: WINDOWS ROBUST EDITION      ")
 print("==========================================")
+print("TIP: Set Windows Display Scaling to 100%!")
 print("Starting in 5 seconds...")
 time.sleep(5)
 
@@ -55,21 +51,28 @@ try:
             farmed_count += 1
             search_attempts = 0 
             
-            # --- NEW: UNLIMITED WAIT FOR GREEN BUTTON ---
-            print("[WAITING] Level selected. Waiting for Main Play button to load...")
+            # --- PHASE 2: WAIT FOR MAIN PLAY ---
+            print("[WAITING] Level selected. Waiting for Main Play button...")
             while True:
+                # We check for popups even here, just in case they appear BEFORE the play button
+                if find_and_click('play_popup.png', 'EARLY POPUP'):
+                    time.sleep(1)
+                
                 if find_and_click('play_main.png', 'MAIN ROUND PLAY'):
-                    break # Exit this loop and move to popups only when button is clicked
-                time.sleep(1) # Check every second so it doesn't lag your PC
+                    break 
+                time.sleep(1)
             
-            # STEP 3: THE POPUP HUNTER
-            time.sleep(2)  # Wait for popup to appear on Windows
-            while True:
-                time.sleep(1.2)
+            # --- PHASE 3: THE POPUP HUNTER ---
+            # We add a 2-second "grace period" to look for popups specifically
+            print("[SEARCHING] Looking for popups...")
+            popup_timer = 0
+            while popup_timer < 5: # Check for 5 seconds total
                 if find_and_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
-                    continue  # Found popup, clicked it, check again
-                else:
-                    break  # No popup found, go to farming 
+                    popup_timer = 0 # Reset timer if we found one, might be another
+                    time.sleep(1.2)
+                    continue
+                time.sleep(1)
+                popup_timer += 1
                     
             # STEP 4: Farming
             print(f"Farming Level #{farmed_count}...")
@@ -86,8 +89,6 @@ try:
             # STEP 6: STRONGER SCROLLING LOGIC
             search_attempts += 1
             print(f"[SEARCHING] Attempt {search_attempts}/5 - Scrolling Hard...")
-            
-            # Boosted to -40 for maximum strength
             pyautogui.scroll(-76) 
             time.sleep(1.5) 
             
@@ -95,7 +96,7 @@ try:
                 print(">>> End of Page. Hunting for RIGHT Pink Arrow...")
                 if find_and_click('pink_arrow.png', 'RIGHT PINK ARROW', region=right_half):
                     print("--- LOADING NEXT PAGE ---")
-                    time.sleep(5) # Extra time for next page load
+                    time.sleep(5) 
                     search_attempts = 0 
                 else:
                     search_attempts = 0 
