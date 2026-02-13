@@ -31,7 +31,7 @@ def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     return False
 
 print("==========================================")
-print("   GD FARMER: WINDOWS SCROLL FIX          ")
+print("   GD FARMER: FULL PAGE COVERAGE         ")
 print("==========================================")
 print("Starting in 5 seconds...")
 time.sleep(5)
@@ -55,7 +55,7 @@ try:
                     break 
                 time.sleep(1) 
             
-            # STEP 3: THE POPUP HUNTER (Kept exactly as you liked it)
+            # STEP 3: THE POPUP HUNTER (KEPT ORIGINAL)
             while True:
                 time.sleep(1.2)
                 if find_and_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
@@ -75,30 +75,30 @@ try:
             time.sleep(1.5)
         
         else:
-            # STEP 6: WINDOWS "FLICK" SCROLLING
+            # STEP 6: SCROLLING LOGIC
             search_attempts += 1
-            print(f"[SEARCHING] Attempt {search_attempts}/5 - Flicking Scroll...")
+            print(f"[SEARCHING] Attempt {search_attempts}/8 - Flicking Scroll...")
             
-            # On Windows, doing one big scroll doesn't work.
-            # We loop 10 times to simulate a hard mouse wheel spin.
-            for _ in range(10): 
-                pyautogui.scroll(-200) # Each "click" of the wheel
-                time.sleep(0.01)      # Tiny delay so the game registers it
+            # Windows "Flick" logic
+            for _ in range(15): 
+                pyautogui.scroll(-140) 
+                time.sleep(0.005) 
             
-            time.sleep(1.0) # Let the scrolling momentum stop before searching
+            time.sleep(0.6) 
             
-            if search_attempts >= 5:
-                print(">>> End of Page. Hunting for RIGHT Pink Arrow...")
+            # UPDATED: Now waits for 8 attempts before switching pages
+            if search_attempts >= 8:
+                print(">>> End of Page Reached. Hunting for RIGHT Pink Arrow...")
                 if find_and_click('pink_arrow.png', 'RIGHT PINK ARROW', region=right_half):
                     print("--- LOADING NEXT PAGE ---")
                     time.sleep(5) 
                     search_attempts = 0 
                 else:
+                    # If arrow not found, reset and try a tiny bit more
                     search_attempts = 0 
-                    # Smaller flick if we hit the end
                     for _ in range(5):
                         pyautogui.scroll(-100)
-                        time.sleep(0.01)
+                        time.sleep(0.005)
 
 except pyautogui.FailSafeException:
     print("\n[STOPPED] Emergency stop.")
