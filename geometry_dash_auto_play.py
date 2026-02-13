@@ -21,20 +21,28 @@ def safe_locate(image_name, conf=0.7, region=None):
     except:
         return None
 
-def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
-    location = safe_locate(image_name, conf, region)
+# NEW: Heavy-duty click for the Main Button only
+def main_button_click(image_name, name):
+    location = safe_locate(image_name, CONF_LEVEL)
     if location:
-        # THE NUCLEAR OPTION FOR GHOST CLICKS:
         center_pt = pyautogui.center(location)
-        pyautogui.moveTo(center_pt, duration=0.1) # Physically move the mouse there
-        time.sleep(0.05)                          # Wait for GD to see the hover
-        pyautogui.click(center_pt)                # Execute the click
+        pyautogui.moveTo(center_pt, duration=0.1) # The move that fixed ghost clicks
+        pyautogui.click(center_pt)
         print(f"[ACTION] Clicked {name}")
         return True
     return False
 
+# OLD: The fast click from your original script
+def fast_click(image_name, name):
+    location = safe_locate(image_name, CONF_LEVEL)
+    if location:
+        pyautogui.click(pyautogui.center(location)) # Straight click, no movement
+        print(f"[ACTION] Fast-Clicked {name}")
+        return True
+    return False
+
 print("==========================================")
-print("   GD FARMER: GHOST-PROOF FINAL BOSS     ")
+print("   GD FARMER: HYBRID LOGIC ACTIVE        ")
 print("==========================================")
 print("Starting in 5 seconds...")
 time.sleep(5)
@@ -47,70 +55,60 @@ right_half = (screen_width // 2, 0, screen_width // 2, screen_height)
 try:
     while True:
         # STEP 1: Search for 'get_it.png'
-        if find_and_click('get_it.png', 'GET IT'):
+        if fast_click('get_it.png', 'GET IT'):
             farmed_count += 1
             search_attempts = 0 
             
-            # STEP 2: THE MAIN PLAY HUNTER (Loop + MoveTo)
-            print("[WAITING] Level selected. Hunting Main Play button...")
+            # STEP 2: MAIN BUTTON (The "Fixed" Hunter Logic)
+            print("[WAITING] Hunting Main Play button (Ghost-Proof)...")
             while True:
-                time.sleep(1.0) 
-                if find_and_click('play_main.png', 'MAIN ROUND PLAY'):
-                    # It will stay in this loop clicking until the button is GONE
+                if main_button_click('play_main.png', 'MAIN ROUND PLAY'):
+                    time.sleep(0.5) 
                     continue 
                 else:
                     break 
             
-            # STEP 3: THE POPUP HUNTER (Loop + MoveTo)
+            # STEP 3: POPUP PLAY (Reverted to your Old Script Logic)
+            print("[WAITING] Popups (Old Script Speed)...")
             while True:
-                time.sleep(1.2)
-                if find_and_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
+                # No 1.2s delay, no moveTo. Just the old loop.
+                if fast_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
                     continue 
                 else:
                     break 
                     
-            # STEP 4: FARMING (WAITING FOR THE ICON)
+            # STEP 4: FARMING (WAITING FOR ICON)
             print(f"Farming Level #{farmed_count}...")
             while True:
                 if safe_locate('level_finished.png', conf=0.7):
-                    print("[WIN] Level finished icon detected!")
                     break
                 time.sleep(0.5)
             
-            # STEP 5: ESC-SEQUENCE + HEALING
-            print("[EXITING] Doing ESC ESC then starting healing...")
+            # STEP 5: EXIT + HEALING
             pyautogui.press('esc')   
             time.sleep(1.2)          
             pyautogui.press('esc')   
             
-            # THE HEALING PROCESS
             while True:
                 if safe_locate('pink_arrow.png', conf=0.7):
-                    print("[SUCCESS] Found Purple Arrow. Proceeding to scroll...")
                     break
-                elif find_and_click('search_icon.png', 'SEARCH ICON'):
-                    print("[FIX] On search page. Returning to list...")
-                    time.sleep(1.5) 
+                elif fast_click('search_icon.png', 'SEARCH ICON'):
+                    time.sleep(1.0) 
                     break
                 else:
-                    print("[RETRY] Still lost. Pressing ESC...")
                     pyautogui.press('esc')
                     time.sleep(1.2)
             
             time.sleep(1.0)
         
         else:
-            # STEP 6: SCROLLING LOGIC (Using your exact -76 logic)
+            # STEP 6: SCROLLING (Your exact -76 foundation)
             search_attempts += 1
-            print(f"[SEARCHING] Attempt {search_attempts}/5 - Scrolling Hard...")
-            
             pyautogui.scroll(-76) 
             time.sleep(1.5) 
             
             if search_attempts >= 5:
-                print(">>> End of Page. Hunting for RIGHT Pink Arrow...")
-                if find_and_click('pink_arrow.png', 'RIGHT PINK ARROW', region=right_half):
-                    print("--- LOADING NEXT PAGE ---")
+                if fast_click('pink_arrow.png', 'RIGHT PINK ARROW'):
                     time.sleep(5) 
                     search_attempts = 0 
                 else:
