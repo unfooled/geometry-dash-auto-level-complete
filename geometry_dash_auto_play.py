@@ -24,14 +24,17 @@ def safe_locate(image_name, conf=0.7, region=None):
 def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     location = safe_locate(image_name, conf, region)
     if location:
-        # Standard click from your working foundation
-        pyautogui.click(pyautogui.center(location))
+        # THE NUCLEAR OPTION FOR GHOST CLICKS:
+        center_pt = pyautogui.center(location)
+        pyautogui.moveTo(center_pt, duration=0.1) # Physically move the mouse there
+        time.sleep(0.05)                          # Wait for GD to see the hover
+        pyautogui.click(center_pt)                # Execute the click
         print(f"[ACTION] Clicked {name}")
         return True
     return False
 
 print("==========================================")
-print("   GD FARMER: PERFECT HUNTER EDITION     ")
+print("   GD FARMER: GHOST-PROOF FINAL BOSS     ")
 print("==========================================")
 print("Starting in 5 seconds...")
 time.sleep(5)
@@ -48,18 +51,17 @@ try:
             farmed_count += 1
             search_attempts = 0 
             
-            # STEP 2: THE MAIN PLAY HUNTER (Now using your "Perfect" Popup logic)
-            print("[WAITING] Level selected. Hunting for Main Play button...")
+            # STEP 2: THE MAIN PLAY HUNTER (Loop + MoveTo)
+            print("[WAITING] Level selected. Hunting Main Play button...")
             while True:
                 time.sleep(1.0) 
                 if find_and_click('play_main.png', 'MAIN ROUND PLAY'):
-                    # If it clicks but the button is still there, it clicks again
+                    # It will stay in this loop clicking until the button is GONE
                     continue 
                 else:
-                    # Only moves on when the button is GONE
                     break 
             
-            # STEP 3: THE POPUP HUNTER (Kept exactly as you liked it)
+            # STEP 3: THE POPUP HUNTER (Loop + MoveTo)
             while True:
                 time.sleep(1.2)
                 if find_and_click('play_popup.png', 'RECTANGLE POPUP PLAY'):
@@ -70,7 +72,6 @@ try:
             # STEP 4: FARMING (WAITING FOR THE ICON)
             print(f"Farming Level #{farmed_count}...")
             while True:
-                # This waits for the list icon you sent
                 if safe_locate('level_finished.png', conf=0.7):
                     print("[WIN] Level finished icon detected!")
                     break
@@ -84,18 +85,13 @@ try:
             
             # THE HEALING PROCESS
             while True:
-                # CHECK A: Found Purple Arrow -> Break and start scrolling
                 if safe_locate('pink_arrow.png', conf=0.7):
                     print("[SUCCESS] Found Purple Arrow. Proceeding to scroll...")
                     break
-                
-                # CHECK B: Found Search Icon -> Click it and then start scrolling
                 elif find_and_click('search_icon.png', 'SEARCH ICON'):
-                    print("[FIX] On search page. Returning to list and starting scroll...")
+                    print("[FIX] On search page. Returning to list...")
                     time.sleep(1.5) 
                     break
-                
-                # CHECK C: Still Lost -> Press ESC and try again
                 else:
                     print("[RETRY] Still lost. Pressing ESC...")
                     pyautogui.press('esc')
@@ -104,7 +100,7 @@ try:
             time.sleep(1.0)
         
         else:
-            # STEP 6: SCROLLING LOGIC (From your "worked" block)
+            # STEP 6: SCROLLING LOGIC (Using your exact -76 logic)
             search_attempts += 1
             print(f"[SEARCHING] Attempt {search_attempts}/5 - Scrolling Hard...")
             
