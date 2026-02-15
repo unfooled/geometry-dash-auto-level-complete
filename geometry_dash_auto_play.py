@@ -14,12 +14,22 @@ CONF_LEVEL = 0.8
 # --------------
 
 def safe_locate(image_name, conf=0.7, region=None):
-    """Prevents crashing when image isn't found."""
-    try:
-        img_path = get_path(image_name)
-        return pyautogui.locateOnScreen(img_path, confidence=conf, region=region)
-    except:
+    """NOW SHOWS ERRORS INSTEAD OF HIDING THEM!"""
+    img_path = get_path(image_name)
+    print(f"[DEBUG] Looking for: {img_path}")
+    
+    # Check if file exists
+    if not os.path.exists(img_path):
+        print(f"[ERROR] Image file does NOT exist: {img_path}")
         return None
+    
+    # Try to locate the image
+    result = pyautogui.locateOnScreen(img_path, confidence=conf, region=region)
+    if result:
+        print(f"[DEBUG] FOUND {image_name} at {result}")
+    else:
+        print(f"[DEBUG] Not found: {image_name}")
+    return result
 
 def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     location = safe_locate(image_name, conf, region)
@@ -30,7 +40,7 @@ def find_and_click(image_name, name, conf=CONF_LEVEL, region=None):
     return False
 
 print("==========================================")
-print("   GD FARMER: DIRECT HEALING EDITION     ")
+print("   GD FARMER: DEBUG VERSION (SHOWS ERRORS)")
 print("==========================================")
 print("Starting in 5 seconds...")
 time.sleep(5)
@@ -132,3 +142,7 @@ except pyautogui.FailSafeException:
     print("\n[STOPPED] Emergency stop triggered.")
 except KeyboardInterrupt:
     print("\n[STOPPED] Manual stop.")
+except Exception as e:
+    print(f"\n[ERROR] Something went wrong: {e}")
+    import traceback
+    traceback.print_exc()
